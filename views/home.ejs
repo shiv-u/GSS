@@ -1,0 +1,29 @@
+<% include ../partials/header.ejs %>
+<div class="container-fluid" style="max-width:450px">
+    <h2>Enter the group details</h2>
+    <hr>
+<form action="/groupdetails" method="post">
+    <div style="margin:20px auto">
+    <div class="form-group">
+      <h4>Number of people (including you)</h4> 
+       <input type="number" name="group_strength" class="form-control">
+    </div>    
+    <hr>
+     <div class="form-group">
+        <h4>Enter the threshold distance (in meters)</h4>
+        <input type="number" name="threshold" class="form-control">
+    </div>
+   
+    </div>
+    <div class="text-center">
+    <input type="submit" value="Submit" class="btn btn-primary">    
+    </div>
+    
+    
+</form>
+    
+</div>
+
+
+
+<% include ../partials/footer.ejs %>

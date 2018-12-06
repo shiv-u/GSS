@@ -1,0 +1,60 @@
+<% include ../partials/header.ejs %>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"  integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT" crossorigin="anonymous"></script>
+<div  class="container-fluid" style="max-width:550px">
+    <div style="margin: 20px auto">
+         <h2>Click the button to connect.</h2>    
+        <form action="/store/<%= gid %>/<%= email %>" method="post" enctype="multipart/form-data">
+            <input type="hidden"  id="lat" name="latitude" >
+            <input type="hidden"  id="lng" name="longitude" >
+            <div class="form-group">
+            <input type="file"  id="upload" name="image" accept="image/*" required>     
+            </div>
+           
+            <input type="submit" value="Connect" class="btn btn-success">
+            
+            
+        </form>
+    
+<p id="demo"></p>
+
+      
+    </div>
+ 
+</div>
+
+<script>
+$(document).ready(function(){
+    console.log("ready");
+var x= document.getElementById("demo");
+var lat = document.getElementById("lat");
+var lng = document.getElementById("lng");
+var options = {
+  enableHighAccuracy: true,
+  timeout: 5000,
+  maximumAge: 0
+};
+
+
+    if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(showPosition,error,options);
+    } else { 
+        x.innerHTML = "Geolocation is not supported by this browser.";
+    }
+
+function error(err)
+{
+     console.warn('ERROR(' + err.code + '): ' + err.message);
+}
+function showPosition(position) {
+    lat.value=position.coords.latitude;
+    lng.value=position.coords.longitude;
+    console.log("lat="+lat.value+"lng="+lng.value);
+    x.innerHTML = "Latitude: " + position.coords.latitude + 
+    "<br>Longitude: " + position.coords.longitude;
+}    
+})
+
+</script>
+
+
+<% include ../partials/footer.ejs %>

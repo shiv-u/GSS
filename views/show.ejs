@@ -1,0 +1,205 @@
+<% include ../partials/header.ejs %>
+<style>
+    /* Google Maps */
+#map {
+  width:100%;
+	height:1500px;
+}
+</style>
+
+<div class="col-lg-12 col-xs-12">
+  <p class="lead">Geo</p>
+  <div id="map"></div>
+<div id="response"></div>
+
+<script>
+
+
+var infoWindow,map;
+
+var options = {
+  enableHighAccuracy: true,
+  timeout: 5000,
+  maximumAge: 0
+};
+
+function getMap()
+{
+      map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 6,
+        center: new google.maps.LatLng(20.5937, 78.9629),
+        scrollwheel: false
+    });
+    
+    initMap();
+    
+}
+
+  function initMap() {
+     
+   
+  
+    <% group.actual_location.forEach(function(g) { %>
+    var d = new Array();
+    <% if(g.lat && g.lng) { %>
+    var lat = <%= g.lat %>;
+    var lng = <%= g.lng %>;
+    var center = {lat: lat, lng: lng };
+    <% } else { %>
+      var lat = 20.5937;
+    var lng = 78.9629;
+    <% } %>
+    var contentString = `
+      <strong>email:<%= g.email %></strong><br/>
+      <strong>lat:<%= g.lat %></strong><br/>
+      <strong>lng:<%= g.lng %></strong>
+    `
+     infowindow = new google.maps.InfoWindow({
+      content: contentString
+    });
+    var marker = new google.maps.Marker({
+        position: center,
+        map: map
+    });
+     google.maps.event.addListener(marker,"click",(function(marker,contentString,infowindow)
+    {   return function()
+        {
+          var content = document.createElement('div');
+          // We then create a paragraph element that will contain some text
+          var p = document.createElement('p');
+          p.innerHTML = 'Click below to zoom in';
+          // We then create a second paragraph element that will contain the clickable link
+          var p2 = document.createElement('p');
+          // Creating the clickable link
+          var a = document.createElement('a');
+          var userDetail = document.createElement("p");
+          var distance = document.createElement("p");
+          userDetail.innerHTML=contentString;
+          a.innerHTML = 'Zoom in';
+          a.href = '#';
+          
+          //       var R = 6371; // km  
+// var dLat = (lat2-lat1)*Math.PI/180;  
+// var dLon = (lon2-lon1)*Math.PI/180;   
+// var a = Math.sin(dLat/2) * Math.sin(dLat/2) +  
+//         Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) *   
+//         Math.sin(dLon/2) * Math.sin(dLon/2);   
+// var c = 2 * Math.asin(Math.sqrt(a));   
+// var d = R * c;  
+ 
+    
+          // Adding a click event to the link that performs
+          // the zoom in, and cancels its default action
+          a.onclick = function() {
+          // Setting the center of the map to the same as the clicked marker
+          map.setCenter(marker.getPosition());
+          // Setting the zoom level to 15
+          map.setZoom(15);
+          // Canceling the default action
+          return false;
+          };
+          // Appending the link to the second paragraph element
+          p2.appendChild(a);
+          // Appending the two paragraphs to the content container
+          content.appendChild(p);
+          content.appendChild(p2);
+          content.appendChild(userDetail);
+          content.appendChild(distance);
+          // Check to see if infoWindow already exists, if not we create a new
+          if (!infoWindow) {
+          infoWindow = new google.maps.InfoWindow();
+          }
+          // We set the content of the InfoWindow to our content container
+          infoWindow.setContent(content);
+          // Lastly we open the InfoWindow
+          infoWindow.open(map, marker);
+         
+          
+        };
+         
+    })(marker,contentString,infowindow));
+    
+  
+    <% }); %>
+   
+     function error(err)
+      {
+         console.warn('ERROR(' + err.code + '): ' + err.message);
+      }
+       
+    // function getPosition()
+    //   {
+       
+    //     console.log("inside getPosition");
+    //     if(navigator.geolocation)
+    //   {
+    //     navigator.geolocation.getCurrentPosition(showPosition);
+    //   }
+    //   }
+      
+      function showPosition(position)
+      {
+         
+        console.log("inside showPosition");
+            $.ajax({  
+        type: "POST",  
+        dataType: 'html',
+        url: "https://gss-shivu1998.c9users.io/data",  
+        data: {'lat':position.coords.latitude,"lng":position.coords.longitude,"eid":"<%= userEmail %>","gid":"<%= group._id %>"},  
+        success: function(data) {  
+            
+            alert("data"+data);
+             group = data;
+              alert("after group="+group);
+            initMap();
+            
+        } ,
+        error: function(err)
+        {
+          console.log(err);
+        }
+      }); 
+      
+     
+    };
+    
+   id=navigator.geolocation.watchPosition(showPosition,error,options);
+   
+    
+
+   
+      }
+
+  
+      
+</script>
+
+<script>
+
+    
+    function getReal()
+    {
+      console.log("getreal");
+      $.ajax({  
+        type: "GET",  
+        dataType: 'html',
+        url: "https://gss-shivu1998.c9users.io/showrefresh/<%= group._id %>/<%= userEmail %>",  
+        
+        success: function(data) {  
+         
+         group = data;
+        // alert("data"+data);
+        // alert("group"+group);
+            
+        } , 
+        error: function(error)
+        {
+          console.log(error);
+        }
+      });
+    }
+    
+  setInterval("getReal()",1000);
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCVHp-sceFLnk_-XuuvEhZX9VytMb2blVc&callback=getMap"></script>
+<% include ../partials/footer.ejs %>
